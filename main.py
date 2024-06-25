@@ -23,7 +23,7 @@ class SuppressStdout:
         sys.stderr = self._original_stderr
 
 # Directory containing your PDF files
-pdf_directory = "/pdf"
+pdf_directory = "pdf"
 
 # List to store all document splits
 all_splits = []
