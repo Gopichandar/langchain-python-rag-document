@@ -6,6 +6,7 @@ from langchain.llms import Ollama
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains import RetrievalQA
+from langchain.document_loaders import PyPDFLoader
 import sys
 import os
 
@@ -21,13 +22,30 @@ class SuppressStdout:
         sys.stdout = self._original_stdout
         sys.stderr = self._original_stderr
 
-# load the pdf and split it into chunks
-loader = OnlinePDFLoader("https://d18rn0p25nwr6d.cloudfront.net/CIK-0001813756/975b3e9b-268e-4798-a9e4-2a9a7c92dc10.pdf")
-data = loader.load()
+# Directory containing your PDF files
+pdf_directory = "/pdf"
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-all_splits = text_splitter.split_documents(data)
+# List to store all document splits
+all_splits = []
+
+# Iterate through all PDF files in the directory
+for filename in os.listdir(pdf_directory):
+    if filename.endswith(".pdf"):
+        pdf_path = os.path.join(pdf_directory, filename)
+        
+        # Load the PDF
+        loader = PyPDFLoader(pdf_path)
+        data = loader.load()
+        
+        # Split the document
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+        splits = text_splitter.split_documents(data)
+        
+        # Add the splits to the main list
+        all_splits.extend(splits)
+
+# Now all_splits contains the chunks from all PDF files
+print(f"Total chunks created: {len(all_splits)}")
 
 with SuppressStdout():
     vectorstore = Chroma.from_documents(documents=all_splits, embedding=GPT4AllEmbeddings())
