@@ -1,3 +1,5 @@
+from langchain.text_processing import RecursiveCharacterTextSplitter  # Adjust this import based on actual module path
+
 from langchain.document_loaders import OnlinePDFLoader
 from langchain.vectorstores import Chroma
 from langchain.embeddings import GPT4AllEmbeddings
