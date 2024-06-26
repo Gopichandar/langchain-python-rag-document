@@ -1,7 +1,6 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from langchain.document_loaders import OnlinePDFLoader
-from langchain.vectorstores import Chroma
 from langchain.embeddings import GPT4AllEmbeddings
 from langchain import PromptTemplate
 from langchain.llms import Ollama
@@ -9,8 +8,12 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
+import pysqlite3
 import sys
 import os
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+from langchain.vectorstores import Chroma
+
 
 class SuppressStdout:
     def __enter__(self):
