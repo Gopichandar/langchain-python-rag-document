@@ -8,6 +8,7 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import TextLoader, UnstructuredMarkdownLoader
 import pysqlite3
 import sys
 import os
@@ -33,21 +34,36 @@ pdf_directory = "pdf"
 # List to store all document splits
 all_splits = []
 
-# Iterate through all PDF files in the directory
+# Iterate through all PDF and text files in the directory
 for filename in os.listdir(pdf_directory):
+    file_path = os.path.join(pdf_directory, filename)
+    
     if filename.endswith(".pdf"):
-        pdf_path = os.path.join(pdf_directory, filename)
-        
         # Load the PDF
-        loader = PyPDFLoader(pdf_path)
-        data = loader.load()
-        
-        # Split the document
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
-        splits = text_splitter.split_documents(data)
-        
-        # Add the splits to the main list
-        all_splits.extend(splits)
+        loader = PyPDFLoader(file_path)
+    elif filename.endswith(".txt"):
+        # Load the text file
+        loader = TextLoader(file_path)
+    elif filename.endswith((".md", ".markdown")):
+        loader = UnstructuredMarkdownLoader(file_path)
+    else:
+        # Skip files that are neither PDF nor txt
+        continue
+    
+    data = loader.load()
+    
+    # Split the document
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1024,
+        chunk_overlap=100,
+        length_function=lambda text: len(text.split()),
+        is_separator_regex=False,
+    )
+    splits = text_splitter.split_documents(data)
+    
+    # Add the splits to the main list
+    all_splits.extend(splits)
+
 
 # Now all_splits contains the chunks from all PDF files
 print(f"Total chunks created: {len(all_splits)}")
@@ -64,7 +80,8 @@ while True:
 
     # Prompt
     template = """Use the following pieces of context to answer the question at the end.
-    If you don't know the answer, just say that you don't know, don't try to make up an answer.    
+    If you don't know the answer, just say that you don't know, don't try to make up an answer.  
+    Answer should be more crip.  
     {context}
     Question: {question}
     Helpful Answer:"""
