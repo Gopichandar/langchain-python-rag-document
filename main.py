@@ -1,7 +1,7 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from langchain.document_loaders import OnlinePDFLoader
-from langchain.embeddings import GPT4AllEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 from langchain import PromptTemplate
 from langchain.llms import Ollama
 from langchain.callbacks.manager import CallbackManager
@@ -43,7 +43,12 @@ for filename in os.listdir(pdf_directory):
         data = loader.load()
         
         # Split the document
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=512,
+            chunk_overlap=50,
+            length_function=len,
+            is_separator_regex=False,
+        )
         splits = text_splitter.split_documents(data)
         
         # Add the splits to the main list
@@ -52,8 +57,11 @@ for filename in os.listdir(pdf_directory):
 # Now all_splits contains the chunks from all PDF files
 print(f"Total chunks created: {len(all_splits)}")
 
+# Initialize BERT embeddings
+bert_embeddings = HuggingFaceEmbeddings(model_name="bert-base-uncased")
+
 with SuppressStdout():
-    vectorstore = Chroma.from_documents(documents=all_splits, embedding=GPT4AllEmbeddings())
+    vectorstore = Chroma.from_documents(documents=all_splits, embedding=bert_embeddings)
 
 while True:
     query = input("\nQuery: ")
