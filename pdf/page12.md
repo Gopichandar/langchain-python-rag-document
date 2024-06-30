@@ -1,8 +1,7 @@
 # Contact Us – i Darts India
 ![logo](https://www.i-darts.com/)
 
-*   Products
-    *   Products Overview
+*   Products of i-darts    
     *   Dartstock™ Power
     *   Dartstock™ Web
     *   Dartstock™ Mobile

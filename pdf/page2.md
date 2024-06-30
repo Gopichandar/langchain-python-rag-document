@@ -1,4 +1,4 @@
-# Products Overview – i Darts India
+# Products – iDarts India
 
 ## Dartstock™ Power
 
