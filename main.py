@@ -43,7 +43,7 @@ for filename in os.listdir(pdf_directory):
         data = loader.load()
         
         # Split the document
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
         splits = text_splitter.split_documents(data)
         
         # Add the splits to the main list
